@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 
 var files = [
-  './src/Header.js',
+  './src/Header1.js',
   './src/Header2.js',
   './src/Colliders.js',
   './src/ColliderManager.js',
@@ -18,10 +18,11 @@ var files = [
   './src/Spriteset_Map.js'
 ]
 
+
 gulp.task('default', ['build']);
 
 gulp.task('build', function() {
   return gulp.src(files)
-    .pipe(concat('qmovement.js'))
+    .pipe(concat('QMovement.js'))
     .pipe(gulp.dest('dist'));
-});
+})
