@@ -90,7 +90,7 @@
 
   Game_CharacterBase.prototype.moveTiles = function() {
     if (QMovement.grid < this.frameSpeed()) {
-      return QMovement.offGrid ? this.frameSpeed() : QMovement.grid
+      return QMovement.offGrid ? this.frameSpeed() : QMovement.grid;
     }
     return QMovement.grid;
   };
@@ -685,13 +685,13 @@
   };
 
   Game_CharacterBase.prototype.collider = function(type) {
-    if (!$dataMap) return;
+    if (!$dataMap || !$gameMap) return;
     if (!this._colliders) this.setupColliders();
     return this._colliders[type] || this._colliders['default'];
   };
 
   Game_CharacterBase.prototype.defaultColliderConfig = function() {
-    return 'box,48,48';
+    return 'box,0,0';
   };
 
   Game_CharacterBase.prototype.setupColliders = function() {
