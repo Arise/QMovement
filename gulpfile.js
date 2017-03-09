@@ -7,6 +7,7 @@ var files = [
   './src/Colliders.js',
   './src/ColliderManager.js',
   './src/Game_Temp.js',
+  './src/Game_System.js',
   './src/Game_Map.js',
   './src/Game_CharacterBase.js',
   './src/Game_Character.js',
