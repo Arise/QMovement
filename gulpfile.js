@@ -6,6 +6,7 @@ var files = [
   './src/Header2.js',
   './src/Colliders.js',
   './src/ColliderManager.js',
+  './src/Game_Interpreter.js',
   './src/Game_Temp.js',
   './src/Game_System.js',
   './src/Game_Map.js',
@@ -18,7 +19,6 @@ var files = [
   './src/Sprite_Destination.js',
   './src/Spriteset_Map.js'
 ]
-
 
 gulp.task('default', ['build']);
 
