@@ -3,21 +3,18 @@
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.QMovement = '1.1.4';
+Imported.QMovement = '1.1.5';
 
-if (!Imported.QPlus) {
-  alert('Error: QMovement requires QPlus to work.');
-  throw new Error('Error: QMovement requires QPlus to work.');
-} else if (!QPlus.versionCheck(Imported.QPlus, '1.1.3')) {
-  alert('Error: QName requires QPlus 1.1.3 or newer to work.');
-  throw new Error('Error: QName requires QPlus 1.1.3 or newer to work.');
+if (!Imported.QPlus || !QPlus.versionCheck(Imported.QPlus, '1.1.3')) {
+  alert('Error: Movemente requires QPlus 1.1.3 or newer to work.');
+  throw new Error('Error: QMovement requires QPlus 1.1.3 or newer to work.');
 }
 
 //=============================================================================
  /*:
  * @plugindesc <QMovement>
  * More control over character movement
- * @author Quxios  | Version 1.1.4
+ * @author Quxios  | Version 1.1.5
  *
  * @repo https://github.com/quxios/QMovement
  *
