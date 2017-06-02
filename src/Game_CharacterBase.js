@@ -3,8 +3,26 @@
 
 (function() {
   Object.defineProperties(Game_CharacterBase.prototype, {
-    px: { get: function() { return this._px; }, configurable: true },
-    py: { get: function() { return this._py; }, configurable: true }
+    x: {
+      get: function() {
+        return Math.floor(this.cx() / QMovement.tileSize);
+      },
+      configurable: true
+    },
+    y: {
+      get: function() {
+        return Math.floor(this.cy() / QMovement.tileSize);
+      },
+      configurable: true
+    },
+    px: {
+      get: function() { return this._px; },
+      configurable: true
+    },
+    py: {
+      get: function() { return this._py; },
+      configurable: true
+    }
   });
 
   var Alias_Game_CharacterBase_initMembers = Game_CharacterBase.prototype.initMembers;
@@ -99,6 +117,13 @@
       }
     }
     Alias_Game_CharacterBase_setDirection.call(this, d);
+  };
+
+  Game_CharacterBase.prototype.setRadian = function(radian) {
+    if (this.isDirectionFixed()) return;
+    radian = QPlus.adjustRadian(radian);
+    this.setDirection(this.radianToDirection(radian, QMovement.diagonal));
+    this._radian = radian;
   };
 
   Game_CharacterBase.prototype.moveTiles = function() {
@@ -328,6 +353,14 @@
 
   Game_CharacterBase.prototype.freqThreshold = function() {
     return QMovement.tileSize;
+  };
+
+  Game_CharacterBase.prototype.terrainTag = function() {
+    return $gameMap.terrainTag(this.x, this.y);
+  };
+
+  Game_CharacterBase.prototype.regionId = function() {
+    return $gameMap.regionId(this.x, this.y);
   };
 
   var Alias_Game_CharacterBase_update = Game_CharacterBase.prototype.update;
@@ -673,9 +706,8 @@
     this._py = y2;
     this._realPX = x1;
     this._realPY = y1;
-    this._radian = Math.atan2(y2 - y1, x2 - x1);
-    this._radian += this._radian < 0 ? 2 * Math.PI : 0;
     this._adjustFrameSpeed = false;
+    this.setRadian(Math.atan2(y2 - y1, x2 - x1));
     this.increaseSteps();
   };
 
@@ -723,11 +755,11 @@
     collider.moveTo(this._px, this._py);
     if (collided) return;
     this._adjustFrameSpeed = true;
-    this._radian = radian2;
     this._realPX = this._px;
     this._realPY = this._py;
     this._px = x2;
     this._py = y2;
+    this.setRadian(radian2);
     this.increaseSteps();
   };
 
