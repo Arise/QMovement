@@ -15,6 +15,12 @@
     return QMovement.playerCollider;
   };
 
+  var Alias_Game_Player_refresh = Game_Player.prototype.refresh;
+  Game_Player.prototype.refresh = function() {
+    this.reloadColliders();
+    Alias_Game_Player_refresh.call(this);
+  };
+
   Game_Player.prototype.requestMouseMove = function() {
     var currFrame = Graphics.frameCount;
     var dt = currFrame - this._lastMouseRequested;
@@ -83,7 +89,7 @@
     var diag = {
       1: [4, 2],   3: [6, 2],
       7: [4, 8],   9: [6, 8]
-    };
+    }
     this.moveDiagonally(diag[dir][0], diag[dir][1]);
   };
 
