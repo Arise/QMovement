@@ -78,12 +78,12 @@
     var code = command.code;
     var params = command.parameters;
     if (command.code === gc.ROUTE_SCRIPT) {
-      var qmove  = /^qmove\((.*)\)/i.exec(params[0]);
+      var qmove = /^qmove\((.*)\)/i.exec(params[0]);
       var qmove2 = /^qmove2\((.*)\)/i.exec(params[0]);
-      var arc    = /^arc\((.*)\)/i.exec(params[0]);
-      if (qmove)  this.subQMove(qmove[1]);
+      var arc = /^arc\((.*)\)/i.exec(params[0]);
+      if (qmove) this.subQMove(qmove[1]);
       if (qmove2) this.subQMove2(qmove2[1]);
-      if (arc)    this.subArc(arc[1]);
+      if (arc) this.subArc(arc[1]);
       if (qmove || qmove2 || arc) return true;
     }
     return false;
@@ -123,33 +123,40 @@
   };
 
   Game_Character.prototype.subQMove = function(settings) {
-    settings  = QPlus.stringToAry(settings);
-    var dir   = settings[0];
-    if (dir === 5) dir = this._direction;
-    var amt   = settings[1];
+    settings = QPlus.stringToAry(settings);
+    var dir = settings[0];
+    var amt = settings[1];
     var multi = settings[2] || 1;
-    var tot   = amt * multi;
+    var tot = amt * multi;
     var steps = Math.floor(tot / this.moveTiles());
     var moved = 0;
     var i;
     for (i = 0; i < steps; i++) {
       moved += this.moveTiles();
       var cmd = {};
-      cmd.code = 'fixedMove';
-      cmd.parameters = [dir, this.moveTiles()];
-      if (dir ===0) {
+      if (dir === 0) {
         cmd.code = 'fixedMoveBackward';
         cmd.parameters = [this.moveTiles()];
+      } else if (dir === 5) {
+        cmd.code = 'fixedMoveForward';
+        cmd.parameters = [this.moveTiles()];
+      } else {
+        cmd.code = 'fixedMove';
+        cmd.parameters = [dir, this.moveTiles()];
       }
       this._moveRoute.list.splice(this._moveRouteIndex + 1, 0, cmd);
     }
     if (moved < tot) {
       var cmd = {};
-      cmd.code = 'fixedMove';
-      cmd.parameters = [dir, tot - moved];
       if (dir === 0) {
         cmd.code = 'fixedMoveBackward';
-        cmd.parameters = [tot - moved];
+        cmd.parameters = [this.moveTiles()];
+      } else if (dir === 5) {
+        cmd.code = 'fixedMoveForward';
+        cmd.parameters = [this.moveTiles()];
+      } else {
+        cmd.code = 'fixedMove';
+        cmd.parameters = [dir, this.moveTiles()];
       }
       this._moveRoute.list.splice(this._moveRouteIndex + 1 + i, 0, cmd);
     }
@@ -157,7 +164,7 @@
   };
 
   Game_Character.prototype.subQMove2 = function(settings) {
-    settings  = QPlus.stringToAry(settings);
+    settings = QPlus.stringToAry(settings);
     var radian = settings[0];
     var dist = settings[1];
     var maxSteps = Math.floor(dist / this.moveTiles());
@@ -221,15 +228,13 @@
   Game_Character.prototype.turnTowardCharacter = function(character) {
     var dx = this.deltaPXFrom(character.cx());
     var dy = this.deltaPYFrom(character.cy());
-    var radian = Math.atan2(-dy, -dx);
-    this.setDirection(this.radianToDirection(radian, QMovement.diagonal));
+    this.setRadian(Math.atan2(-dy, -dx));
   };
 
   Game_Character.prototype.turnAwayFromCharacter = function(character) {
     var dx = this.deltaPXFrom(character.cx());
     var dy = this.deltaPYFrom(character.cy());
-    var radian = Math.atan2(dy, dx);
-    this.setDirection(this.radianToDirection(radian, QMovement.diagonal));
+    this.setRadian(Math.atan2(dy, dx));
   };
 
   Game_Character.prototype.deltaPXFrom = function(x) {
@@ -251,8 +256,40 @@
     var dy1 = this.cy() - this._py;
     var dx2 = character.cx() - character._px;
     var dy2 = character.cy() - character._py;
-    var dx = dx1 - dx2;
-    var dy = dy1 - dy2;
+    var dx = dx2 - dx1;
+    var dy = dy2 - dy1;
     return new Point(character._px + dx, character._py + dy);
+  };
+
+  Game_Character.prototype.centerWithCollider = function(collider) {
+    var dx1 = this.cx() - this._px;
+    var dy1 = this.cy() - this._py;
+    var dx2 = collider.center.x - collider.x;
+    var dy2 = collider.center.y - collider.y;
+    var dx = dx2 - dx1;
+    var dy = dy2 - dy1;
+    return new Point(collider.x + dx, collider.y + dy);
+  };
+
+  Game_Character.prototype.adjustPosition = function(xf, yf) {
+    var dx = xf - this._px;
+    var dy = yf - this._py;
+    var radian = Math.atan2(dy, dx);
+    var distX = Math.cos(radian) * this.moveTiles();
+    var distY = Math.sin(radian) * this.moveTiles();
+    var final = new Point(xf, yf);
+    while (!this.canPixelPass(final.x, final.y, 5, 'collision')) {
+      final.x -= distX;
+      final.y -= distY;
+      dx = final.x - this._px;
+      dy = final.y - this._py;
+      if (Math.atan2(dy, dx) !== radian) {
+        final.x = this._px;
+        final.y = this._py;
+        break;
+      }
+    }
+    this.moveColliders(this._px, this._py);
+    return final;
   };
 })();
